@@ -1,14 +1,15 @@
 <template>
-  <v-card-actions>
+  <v-row justify="center">
     <!-- <v-badge :color="$store.state.sidecolor" overlap left> -->
-    <v-btn text icon @click="addLikeImg(src)">
-      <v-icon small>mdi-heart</v-icon>
-      {{ src.likeCount }}
-    </v-btn>
 
     <v-btn text icon @click="addEnshrine(src)" :color="isCollect[colFlag]">
-      <v-icon small>mdi-star</v-icon>
+      <v-icon small>mdi-heart</v-icon>
       {{ src.user_id.length }}
+    </v-btn>
+
+    <v-btn text icon @click="addLikeImg(src)">
+      <v-icon small>mdi-thumb-up</v-icon>
+      {{ src.likeCount }}
     </v-btn>
 
     <v-btn icon @click="addunlike(src)">
@@ -19,7 +20,7 @@
     <v-btn text icon color="red" @click="deleteImg(src)">
       <v-icon small>mdi-delete-empty</v-icon>
     </v-btn>
-  </v-card-actions>
+  </v-row>
 </template>
 
 <script>
@@ -33,7 +34,7 @@ export default {
   },
   methods: {
     addEnshrine(e) {
-      if (this.$store.state.user.username) {
+      if (this.$store.state.user.userName) {
         let userid = this.$store.state.user._id
         let id = e._id
         e.user_id.length++

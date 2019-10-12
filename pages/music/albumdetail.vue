@@ -34,7 +34,7 @@
             <td>
               <v-icon
                 color="red"
-              >{{$store.state.musicUrl.id===item.id?'mdi-arrow-right-drop-circle':""}}</v-icon>
+              >{{$store.state.musicUrl.id===item.id?($store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"):""}}</v-icon>
             </td>
             <td>{{ item.name }}</td>
             <td>{{ item.ar[0].name}}</td>

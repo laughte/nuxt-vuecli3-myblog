@@ -19,11 +19,11 @@
       <v-divider></v-divider>
       <v-sheet
         tag="li"
-        class="font-weight-light ma-1 pa-1 black--text lighten-5"
+        class="font-weight-light white--text ma-1 pa-1"
         @click="showarticlepage(e)"
-        :color="getColor(e.articletype)"
+        :color="getColor(e.articleType)"
         :key="i"
-        v-for="(e, i) in $store.state.article.slice(0, 9)"
+        v-for="(e, i) in $store.state.article.slice(0, 7)"
       >{{ e.blocks[0].data.text }}</v-sheet>
     </div>
 
@@ -42,7 +42,17 @@
       <v-card-title class="pa-0 font-weight-black">活跃用户</v-card-title>
       <v-divider></v-divider>
 
-      <v-chip :to="'/'+e" class="ma-2" :key="i" v-for="(e, i) in $store.state.userList">{{ e }}</v-chip>
+      <v-chip
+        :color="colors[Math.ceil(Math.random()*15)]"
+        :to="'/'+e"
+        class="ma-2"
+        :key="i"
+        v-for="(e, i) in $store.state.userList"
+      >
+        <!-- <v-icon color="white" left>mdi-account</v-icon> -->
+        <v-icon left color="white">mdi-account-circle</v-icon>
+        {{ e }}
+      </v-chip>
     </div>
 
     <div class="mt-8">
@@ -66,14 +76,32 @@ export default {
   props: { isartpage: Boolean },
   data() {
     return {
-      keywords: ''
+      keywords: '',
+      colors: [
+        'red',
+        'pink',
+        'purple',
+        'indigo',
+        'blue',
+        'deep-purple',
+        'light-blue',
+        'cyan',
+        'teal',
+        'lime',
+        'amber',
+        'orange',
+        'yellow darken-1',
+        'deep-orange',
+        'brown',
+        'blue-grey'
+      ]
     }
   },
   methods: {
     showarticlepage(e) {
       this.$router.push({
-        path: `/${e.userName}/${e._id}`,
-        query: { id: e._id }
+        path: `/${e.userName}/${e._id}`
+        // query: { id: e._id }
       })
     },
 
@@ -130,7 +158,7 @@ export default {
         case 'python':
           return 'red'
 
-        case 'JavaScript':
+        case 'js':
           return 'pink accent-2'
 
         case 'PHP':
@@ -138,6 +166,9 @@ export default {
 
         case 'java':
           return 'purple'
+
+        case '随笔':
+          return 'amber darken-1'
 
         case '诗经':
           return 'brown lighten-3'
@@ -148,7 +179,7 @@ export default {
         case '水彩':
           return 'light-blue'
 
-        case '古诗词':
+        case '诗词':
           return 'orange'
 
         case '小说':
@@ -168,7 +199,7 @@ export default {
           return 'pink accent-1'
 
         default:
-          return 'yellow'
+          return 'teal darken-2'
       }
     }
   },

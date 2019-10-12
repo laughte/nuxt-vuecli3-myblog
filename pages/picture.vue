@@ -1,9 +1,16 @@
 <template>
-  <v-card :loading="loadingFlag">
+  <v-card flat :loading="loadingFlag">
     <v-container class="pa-2" fluid>
-      <v-row>
-        <v-col lg="2" md="3" sm="4" xs="12" :key="src._id" v-for="src in $store.state.urls">
-          <v-card flat hover width="100%" justify="start">
+      <v-row justify="start">
+        <v-col
+          lg="2"
+          md="3"
+          sm="4"
+          xs="6"
+          :key="src._id"
+          v-for="src in $store.state.urls.slice((page-1)*24,page*24)"
+        >
+          <v-card flat hover width="100%">
             <v-img
               @click="switchshow(src)"
               class="white--text"
@@ -27,6 +34,11 @@
             </v-card-actions>
           </v-card>
         </v-col>
+
+        <div v-if="Math.ceil($store.state.urls.length/24)>1" class="text-center">
+          <v-pagination v-model="page" :length="Math.ceil($store.state.urls.length/24)"></v-pagination>
+        </div>
+
         <v-overlay v-show="overlayflag" z-index="3">
           <v-btn icon color="red" @click="overlayflag = false" right>
             <v-icon large>mdi-close</v-icon>
@@ -63,6 +75,7 @@ export default {
   components: { cardaction },
   data() {
     return {
+      page: 1,
       srclists: [],
       overlayflag: false,
       model: null,

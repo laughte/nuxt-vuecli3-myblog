@@ -66,7 +66,7 @@ module.exports = {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: "http://39.105.168.171:3389", //'http://resume.utools.club',
+    baseURL: "http://39.105.168.171:80", //'http://resume.utools.club',
   },
   router: {
     middleware: 'auth'
@@ -82,7 +82,7 @@ module.exports = {
       // dark: true,
       themes: {
         light: {
-          primary: colors.purple,
+          primary: colors.teal.darken1,
           secondary: colors.grey.darken1,
           accent: colors.shades.black,
           error: colors.red.accent3,
@@ -101,7 +101,7 @@ module.exports = {
   },
 
   server: {
-    port: 8000, // default: 3000
+    port: 80, // default: 3000
     host: '0.0.0.0', // default: localhost
   },
   /*

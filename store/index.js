@@ -1,4 +1,6 @@
 export const state = () => ({
+  musicserve: "http://39.105.168.171:3000", //"http://neteasemusic.utools.club",
+
   article: [],
   articleTemp: [],
   userCollect: [],
@@ -10,9 +12,21 @@ export const state = () => ({
   },
   user: {},
   urls: [],
-
+  ifEdite: false,
 
   //音乐相关数据
+  audio: {
+    songsInfo: {},
+    // 该字段是音频是否处于播放状态的属性
+    playing: false,
+    // 音频当前播放时长
+    currentTime: 0,
+    // 音频最大播放时长
+    maxTime: 0,
+    sliderTime: 0,
+    soundValue: 0,
+
+  },
   musicData: [],
   musicAblumData: [],
   musicAlbum: [],
@@ -84,13 +98,99 @@ export const state = () => ({
     "level": "higher",
     "encodeType": "mp3"
   },
+  sideMusicFlag: false,
 
 })
 
 
 export const mutations = {
 
+
+
   //音乐相关方法
+  // 播放与暂停
+  starOrpause(state) {
+    state.sideMusicFlag = !state.sideMusicFlag
+
+  },
+  // 当音频播放
+  onPlay(state) {
+    state.audio.playing = true
+  },
+  // 当音频暂停
+  onPause(state) {
+    state.audio.playing = false
+  },
+
+  // 当timeupdate事件大概每秒一次，用来更新音频流的当前播放时间
+  onTimeupdate(state, res) {
+    // console.log('timeupdate')
+    state.audio.currentTime = res.target.currentTime
+    state.audio.sliderTime = parseInt(
+      (state.audio.currentTime /
+        state.audio.maxTime) *
+      100
+    )
+  },
+  // 当加载音蘋流元数据完成后，会触发该事件的回调函数
+  // 音蘋元数据主要是音蘋的长度之类的数据
+  onLoadedmetadata(state, res) {
+    // console.log('loadedmetadata')
+    // console.log(res)
+    state.audio.maxTime = parseInt(res.target.duration)
+  },
+
+
+  //切换上一曲
+  lastMusic(state) {
+    state.musicPlayList.forEach((element, index) => {
+      if (element.id === state.musicUrl.id) {
+        if (index - 1 >= 0) {
+          state.audio.songsInfo = state.musicPlayList[index - 1]
+          this.commit(
+            'playlistPlay',
+            state.musicPlayList[index - 1]
+          )
+        } else {
+
+          state.audio.songsInfo = state.musicPlayList[
+            state.musicPlayList.length - 1
+          ]
+          this.commit(
+            'playlistPlay',
+            state.musicPlayList[
+              state.musicPlayList.length - 1
+            ]
+          )
+        }
+      }
+    })
+  },
+  //切换下一曲
+  nextMusic(state) {
+    state.musicPlayList.forEach((element, index) => {
+      if (element.id === state.musicUrl.id) {
+        if (index + 1 === state.musicPlayList.length) {
+          state.audio.songsInfo = state.musicPlayList[0]
+          this.commit(
+            'playlistPlay',
+            state.musicPlayList[0]
+          )
+        } else {
+          state.audio.songsInfo = state.musicPlayList[index + 1]
+          this.commit(
+            'playlistPlay',
+            state.musicPlayList[index + 1]
+          )
+        }
+      }
+    })
+  },
+
+  //
+
+
+  //获取专辑
   changeMusicAblumData(state, e) {
     state.musicAblumData = e
   },
@@ -136,7 +236,8 @@ export const mutations = {
   // 播放歌曲并把歌曲添加到播放列表
   playlistPlay(state, e) {
     // console.log(e)
-    this.$axios.get('http://localhost:3000/song/url?id=' + e.id).then(res => {
+    state.audio.songsInfo = e
+    this.$axios.get(state.musicserve + '/song/url?id=' + e.id).then(res => {
       // console.log(res)
       this.commit('updateMusicPlayList', e)
       this.commit('changeSong', res.data[0])
@@ -154,10 +255,16 @@ export const mutations = {
   //根据歌曲专辑id获取对应专辑
   // /album?id=38991
   async getSongAlbum(state, e) {
-    let res = await this.$axios.get('http://localhost:3000/album?id=' + e.album.id)
+    let res = await this.$axios.get(state.musicserve + '/album?id=' + e.album.id)
     this.commit('changeSongAlbumData', res)
   },
 
+  // 文章搜索 searchKeywords
+  searchKeywords(state, key) {
+    // state.articleTemp.forEach((e, i) => {
+
+    // })
+  },
 
   readData(state, arr) {
     // console.log(arr)
@@ -168,6 +275,7 @@ export const mutations = {
   },
   USERLOGIN(state, user) {
     state.user = user;
+    console.log(user)
     // 存储登陆信息
     window.sessionStorage.setItem('user', JSON.stringify((user)));
   },
@@ -198,6 +306,10 @@ export const mutations = {
     state.artype = Array.from(new Set(artype));
     state.userList = Array.from(new Set(user));
 
+  },
+
+  articleEdite(state) {
+    state.ifEdite = true
   },
 
   editArticle(state, item) {
@@ -233,6 +345,7 @@ export const mutations = {
     state.article.forEach((element) => {
       if (element._id === item.id) {
         element.msgFlag = !element.msgFlag
+        // console.log(item.res)
         if (item.res) {
           element.msgData = item.res
           // console.log(element)
@@ -301,14 +414,16 @@ export const mutations = {
   },
 
   changeArticle(state, item) {
+    state.ifEdite = false
     state.article.forEach((element) => {
       if (element._id === item.id) {
         element.blocks = item.data
         this.$axios
           .post('/api/update', element)
           .then(res => {
-            console.log(res)
+            // console.log(res)
             this.$router.push('/')
+
           })
           .catch(err => {
             console.log(err)

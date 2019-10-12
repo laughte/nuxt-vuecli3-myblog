@@ -168,6 +168,7 @@ export default {
   methods: {
     showitem(e) {
       // console.log(e);
+      this.$store.commit('articleEdite')
       this.$router.push({
         path: `/${e.userName}/${e._id}`,
         query: { id: e._id }

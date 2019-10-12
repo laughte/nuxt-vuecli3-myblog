@@ -27,15 +27,15 @@
     </v-avatar>
 
     <v-card v-show="avatarflag" absolute top right>
-      <!-- <v-avatar
+      <v-avatar
         size="36px"
         :key="i"
         class="ma-4"
         @click="imgsrcicon(e)"
-        v-for="(e,i) in $store.state.tempurls.slice(Math.random()*10,10)"
+        v-for="(e,i) in tempurls.slice(Math.random()*10,10)"
       >
-        <img alt="Avatar" :src="e.srclist[1]" />
-      </v-avatar>-->
+        <img alt="Avatar" :src="e" />
+      </v-avatar>
       <v-card-actions>
         <v-btn @click="picAvatar()" text>确认</v-btn>
       </v-card-actions>
@@ -70,13 +70,20 @@
       required
       @change="checkpassword"
     ></v-text-field>-->
-    <p>| 注册表示同意本站的使用规则!</p>
-    <v-checkbox
-      v-model="checkbox"
-      :rules="[v => !!v || 'You must agree to continue!']"
-      label="Do you agree?"
-      required
-    ></v-checkbox>
+
+    <v-checkbox v-model="checkbox" :rules="[v => !!v || 'You must agree to continue!']" required>
+      <template v-slot:label>
+        <div>
+          阅读并接受
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <a target="_blank" href="/userAgreement" @click.stop v-on="on">用户协议</a>
+            </template>
+            Opens in new window
+          </v-tooltip>
+        </div>
+      </template>
+    </v-checkbox>
 
     <v-btn :disabled="!valid" color="success" class="mr-4" @click="validate">提交</v-btn>
 
@@ -106,6 +113,7 @@ import CryptoJS from 'crypto-js'
 
 export default {
   data: () => ({
+    tempurls: [],
     avatarflag: false,
     show2: false,
     show1: false,
@@ -152,8 +160,8 @@ export default {
 
   methods: {
     imgsrcicon(e) {
-      this.user.imgsrc = e.srclist[1]
-      console.log(this.user.imgsrc)
+      this.user.imgsrc = e
+      // console.log(this.user.imgsrc)
     },
     picAvatar() {
       this.avatarflag = false
@@ -182,17 +190,31 @@ export default {
           })
       }
     },
-    checkpassword(e) {
-      // console.log(e);
-      if (e != this.pass) {
-        // // console.log("两次输入密码不一致!");
-        // let r = [v => false || "两次输入密码不一致!"];
-        // this.checkPassRules = [...this.checkPassRules, ...r];
-        // console.log(this.checkPassRules);
-      } else {
-        // let r = [v => false || "两次输入密码不一致!"];
-        // this.checkPassRules.splice(1, 1);
-      }
+    async getPicture() {
+      let picUrl = []
+      // this.$axios
+      //   .get('https://api.isoyu.com/api/picture/index?page=20')
+      //   .then(res => {
+      //     // console.log(res.data)
+      //     res.data.forEach(e => {
+      //       e.pics.forEach(m => {
+      //         picUrl.push(m)
+      //       })
+      //     })
+      //   })
+
+      let res = await this.$axios.get(
+        'https://api.isoyu.com/api/picture/index?page=20'
+      )
+
+      res.data.forEach(e => {
+        e.pics.forEach(m => {
+          picUrl.push(m)
+        })
+      })
+
+      // console.log(picUrl)
+      this.tempurls = picUrl
     },
     reset() {
       this.$refs.form.reset()
@@ -200,6 +222,9 @@ export default {
     resetValidation() {
       this.$refs.form.resetValidation()
     }
+  },
+  mounted() {
+    this.getPicture()
   }
 }
 </script>

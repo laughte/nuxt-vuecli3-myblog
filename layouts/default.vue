@@ -19,33 +19,38 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-system-bar color="pink darken-2"></v-system-bar>
-    <v-app-bar :clipped-left="clipped" fixed app dense>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+
+    <v-app-bar elevate-on-scroll hide-on-scroll :clipped-left="clipped" fixed app dense>
+      <v-app-bar-nav-icon @click.stop="drawer=!drawer" />
       <v-btn class="d-none d-sm-none d-md-flex" icon @click.stop="miniVariant = !miniVariant">
         <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
-      <v-btn to="/" text class="d-none d-sm-none d-md-flex">
-        <span v-text="$store.state.user.userName?$store.state.user.userName:title"></span>
-      </v-btn>
-
       <v-row align="center">
-        <v-switch v-model="$vuetify.theme.dark" primary :label="$vuetify.theme.dark?'light':'Dark'"></v-switch>
+        <v-switch
+          hide-details
+          v-model="$vuetify.theme.dark"
+          primary
+          :label="$vuetify.theme.dark?'light':'Dark'"
+        ></v-switch>
+        <v-btn @click="backhome()" depressed text class="ml-2 d-none d-sm-none d-md-flex">
+          <span v-text="$store.state.user.userName?$store.state.user.userName:title"></span>
+        </v-btn>
       </v-row>
+
       <v-row align="center">
         <weather />
       </v-row>
 
-      <v-row align="center" style="max-width: 650px">
+      <!-- <v-row align="center" style="max-width: 650px">
         <v-text-field
           :append-icon-cb="() => {}"
           placeholder="Search..."
           single-line
+          @change="searchKeywords"
           append-icon="mdi-magnify"
-          color="white"
           hide-details
         ></v-text-field>
-      </v-row>
+      </v-row>-->
       <v-spacer />
 
       <v-btn
@@ -78,7 +83,10 @@
       @volumechange="onvolumechange"
       preload="auto"
     >
-      <source :src="$store.state.musicUrl.url" type="audio/mpeg" />您的浏览器不支持 audio 元素。
+      <source
+        :src="$store.state.musicUrl.url?$store.state.musicUrl.url:$store.state.musicUrl.mp3Url"
+        type="audio/mpeg"
+      />您的浏览器不支持 audio 元素。
     </audio>
     <div class="playButton">
       <v-bottom-sheet>
@@ -95,7 +103,7 @@
             <v-icon
               large
               color="red"
-            >{{audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
+            >{{$store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
           </v-btn>
           <v-btn @click="nextMusic()" icon>
             <v-icon large color="red">mdi-skip-next-circle</v-icon>
@@ -125,7 +133,7 @@
                     <td>
                       <v-icon color="red">
                         {{
-                        $store.state.musicUrl.id===item.id?(audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"):""
+                        $store.state.musicUrl.id===item.id?($store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"):""
                         }}
                       </v-icon>
                     </td>
@@ -140,7 +148,7 @@
           <!-- 音乐播放列表 -->
           <v-progress-linear
             buffer-value="100"
-            :value="audio.sliderTime"
+            :value="$store.state.audio.sliderTime"
             class="my-0"
             height="3"
             stream
@@ -167,7 +175,7 @@
                   <v-icon
                     large
                     color="red"
-                  >{{audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
+                  >{{$store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
                 </v-btn>
 
                 <v-btn @click="nextMusic()" icon>
@@ -177,7 +185,7 @@
 
               <div class="flex-grow-1"></div>
               <v-list-item-content>
-                <v-list-item-title>{{audio.songsInfo.name}}</v-list-item-title>
+                <v-list-item-title>{{$store.state.audio.songsInfo.name}}</v-list-item-title>
                 <v-list-item-subtitle>Fitz & The Trantrums</v-list-item-subtitle>
               </v-list-item-content>
 
@@ -188,7 +196,6 @@
                   hide-details
                   color="red"
                   @change="changeVolume"
-                  v-model="audio.soundValue"
                   prepend-icon="mdi-volume-high"
                 ></v-slider>
               </v-row>
@@ -313,21 +320,20 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: '自在飞花轻似梦',
-      audio: {
-        songsInfo: {},
-        // 该字段是音频是否处于播放状态的属性
-        playing: false,
-        // 音频当前播放时长
-        currentTime: 0,
-        // 音频最大播放时长
-        maxTime: 0,
-        sliderTime: 0,
-        soundValue: 0
-      }
+      title: '自在飞花轻似梦'
     }
   },
   methods: {
+    // 返回主页
+    backhome() {
+      this.$router.push('/')
+    },
+
+    // 文章搜索 searchKeywords
+    searchKeywords(e) {
+      this.$store.commit('searchKeywords', e)
+    },
+
     getdata() {
       this.$axios
         .get('/api/myblog', {
@@ -358,9 +364,14 @@ export default {
       })
     },
 
+    //侧边栏切换
+    // changedrawer() {
+    //   this.drawer = !this.drawer
+    // },
+
     //选择播放音乐
     playMusic(e) {
-      this.audio.songsInfo = e
+      // this.$store.state.audio.songsInfo = e
       this.$store.commit('playlistPlay', e)
       //根据歌曲专辑id获取对应专辑
       // /album?id=38991
@@ -370,69 +381,35 @@ export default {
     getNewSongs() {
       //
       this.$axios
-        .get('http://localhost:3000/personalized/newsong')
+        .get(this.$store.state.musicserve + '/personalized/newsong')
         .then(res => {})
     },
     // 获取每日推荐专辑
     newgetMusic(e) {
-      this.$axios.get('http://localhost:3000' + e).then(res => {
+      this.$axios.get(this.$store.state.musicserve + +e).then(res => {
         // console.log(res)
         this.$store.commit('changeMusicAblumData', res.result)
       })
     },
     // 控制音频的播放与暂停
     startPlayOrPause() {
-      return this.audio.playing ? this.pause() : this.play()
+      // this.$store.commit('starOrpause')
+      return this.$store.state.audio.playing ? this.pause() : this.play()
     },
     //上一曲 $store.state.musicPlayList
     lastMusic() {
-      this.$store.state.musicPlayList.forEach((element, index) => {
-        if (element.id === this.$store.state.musicUrl.id) {
-          if (index - 1 >= 0) {
-            this.audio.songsInfo = this.$store.state.musicPlayList[index - 1]
-            this.$store.commit(
-              'playlistPlay',
-              this.$store.state.musicPlayList[index - 1]
-            )
-          } else {
-            this.audio.songsInfo = this.$store.state.musicPlayList[
-              this.$store.state.musicPlayList.length - 1
-            ]
-            this.$store.commit(
-              'playlistPlay',
-              this.$store.state.musicPlayList[
-                this.$store.state.musicPlayList.length - 1
-              ]
-            )
-          }
-        }
-      })
+      this.$store.commit('lastMusic')
     },
     // 下一曲
     nextMusic() {
-      this.$store.state.musicPlayList.forEach((element, index) => {
-        if (element.id === this.$store.state.musicUrl.id) {
-          if (index + 1 === this.$store.state.musicPlayList.length) {
-            this.audio.songsInfo = this.$store.state.musicPlayList[0]
-            this.$store.commit(
-              'playlistPlay',
-              this.$store.state.musicPlayList[0]
-            )
-          } else {
-            this.audio.songsInfo = this.$store.state.musicPlayList[index + 1]
-            this.$store.commit(
-              'playlistPlay',
-              this.$store.state.musicPlayList[index + 1]
-            )
-          }
-        }
-      })
+      this.$store.commit('nextMusic')
     },
 
     //加载音乐
     load() {
       this.pregressflag = true
       this.$refs.audio.load()
+      // console.log(this.$refs.audio)
     },
 
     // 播放音频
@@ -446,47 +423,46 @@ export default {
     },
     // 当音频播放
     onPlay() {
-      this.audio.playing = true
+      this.$store.commit('onPlay')
+      // this.$store.state.audio.playing = true
     },
     // 当音频暂停
     onPause() {
-      this.audio.playing = false
+      this.$store.commit('onPause')
+      // this.$store.state.audio.playing = false
     },
     // 当timeupdate事件大概每秒一次，用来更新音频流的当前播放时间
+    // 当音频当前时间改变后，进度条也要改变
     onTimeupdate(res) {
       // console.log('timeupdate')
       // console.log(res)
-      this.audio.currentTime = res.target.currentTime
+      this.$store.commit('onTimeupdate', res)
+      // this.$store.state.audio.currentTime = res.target.currentTime
     },
-    // 当加载语音流元数据完成后，会触发该事件的回调函数
-    // 语音元数据主要是语音的长度之类的数据
+    // 当加载音蘋流元数据完成后，会触发该事件的回调函数
+    // 音蘋元数据主要是音蘋的长度之类的数据
     onLoadedmetadata(res) {
       // console.log('loadedmetadata')
       // console.log(res)
       this.pregressflag = false
-      this.audio.maxTime = parseInt(res.target.duration)
+      this.$store.commit('onLoadedmetadata', res)
+      // this.$store.state.audio.maxTime = parseInt(res.target.duration)
     },
     // 拖动进度条，改变当前时间，index是进度条改变时的回调函数的参数0-100之间，需要换算成实际时间
     changeCurrentTime(index) {
       this.$refs.audio.currentTime = parseInt(
-        (index / 100) * this.audio.maxTime
+        (index / 100) * this.$store.state.audio.maxTime
       )
     },
-    // 当音频当前时间改变后，进度条也要改变
-    onTimeupdate(res) {
-      this.audio.currentTime = res.target.currentTime
-      this.audio.sliderTime = parseInt(
-        (this.audio.currentTime / this.audio.maxTime) * 100
-      )
-    },
+
     // 进度条格式化toolTip
     formatProcessToolTip(index = 0) {
-      index = parseInt((this.audio.maxTime / 100) * index)
+      index = parseInt((this.$store.state.audio.maxTime / 100) * index)
       return realFormatSecond(index)
     },
     // 声音调整
     changeVolume(n) {
-      console.log(n / 100)
+      // console.log(n / 100)
       this.$refs.audio.volume = n / 100
     },
     onProgress() {},
@@ -510,12 +486,18 @@ export default {
   computed: {
     musicUrl: function() {
       return this.$store.state.musicUrl
+    },
+    playOrpause: function() {
+      return this.$store.state.sideMusicFlag
     }
   },
   watch: {
-    musicUrl: function(n) {
+    musicUrl: function() {
       this.load()
       this.play()
+    },
+    playOrpause: function() {
+      this.startPlayOrPause()
     }
   },
 
@@ -529,6 +511,10 @@ export default {
     // else {
     // console.log(this.$store.state.article)
     // }
+  },
+  mounted() {
+    // this.load()
+    // this.paly()
   }
 }
 function realFormatSecond(second) {
@@ -550,22 +536,22 @@ function realFormatSecond(second) {
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .playButton {
   position: fixed;
   top: 80%;
   z-index: 9;
   left: -120px;
 
-  transition: all 0.3s;
-  animation: playtag 0.5s cubic-bezier(0.5, 0.05, 1, 0.5) 2s 6 alternate;
+  transition: all 0.3s; //0.5, 0.05, 1, 0.5
+  animation: playtag 1s cubic-bezier(0.5, 0.05, 1, 0.5) 1s 3 alternate;
 }
 @keyframes playtag {
-  from {
-    transform: translate3d(0, 0, 0);
+  0% {
+    transform: translate3d(0, -500px, 0);
   }
-  to {
-    transform: translate3d(0, 200px, 0);
+  100% {
+    transform: translate3d(0, 0px, 0);
   }
 }
 .playButton:hover {

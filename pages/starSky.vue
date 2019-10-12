@@ -35,7 +35,7 @@
   height: 50px;
   background: rgb(255, 253, 253);
   border-radius: 50%;
-  animation: cycled 10s infinite linear;
+  animation: cycled 10s infinite cubic-bezier(0.5, 0.05, 1, 0.5);
   filter: blur(20px);
 }
 
@@ -123,7 +123,7 @@
 	animationPlayState:'running',
 
     }"
-      :key="i"
+      :key="i+'sdfoejfasjfoasdf'"
       v-for="i in volume*12"
     ></div>
 
@@ -240,10 +240,10 @@ filter:'blur(1px)'
 export default {
   data() {
     return {
-      volume: 12,
-      volume1: 4,
-      volume2: 5,
-      volume3: 2
+      volume: 0,
+      volume1: 0,
+      volume2: 0,
+      volume3: 10
     }
   },
   methods: {

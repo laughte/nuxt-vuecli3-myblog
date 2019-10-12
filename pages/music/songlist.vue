@@ -9,7 +9,7 @@
             <v-card-title class="align-end fill-height">I'm a title</v-card-title>
     </v-img>-->
 
-    <v-simple-table fixed-header height="650px" v-if="$store.state.musicData.songs">
+    <v-simple-table fixed-header height="850px" v-if="$store.state.musicData.songs">
       <template v-slot:default>
         <thead>
           <tr>

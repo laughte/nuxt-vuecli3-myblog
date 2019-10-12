@@ -142,28 +142,24 @@ router.get('/getUser', async (ctx) => {
 router.post('/signup', async (ctx) => {
 
   let userName = ctx.request.body.username
-
+  let Email = ctx.request.body.email
   let user = await DB.find('users', {
     username: userName
   })
+  let uemail = await DB.find('users', {
+    email: Email
+  })
   // console.log(user)
-  if (user.length > 0) {
-    ctx.body = {
-      code: -1,
-      msg: '该用户，已被注册'
-    }
-    return
-  } else {
+  if (user.length === 0 && uemail.length === 0) {
     // 创建新用户
     let res = await DB.insert('users', ctx.request.body);
-    console.log(res)
+    // console.log(res)
     try {
       if (res.result.ok) {
-
         ctx.body = {
           status: 200,
           data: {
-            userName,
+            userName: res.username,
             id: res._id,
             email: res.email,
             imgsrc: res.imgsrc,
@@ -179,9 +175,12 @@ router.post('/signup', async (ctx) => {
       }
       console.log(error);
     }
-
+  } else {
+    ctx.body = {
+      code: -1,
+      msg: '该用户名或者邮箱已被注册,请从新输入!'
+    }
   }
-
 
 })
 // 登录

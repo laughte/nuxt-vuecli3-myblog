@@ -1,6 +1,6 @@
 <template>
-  <v-card color="grey lighten-4" flat tile>
-    <v-toolbar flat color="red">
+  <v-card flat tile>
+    <v-app-bar elevate-on-scroll inverted-scroll clipped fixed app dense flat color="red">
       <v-toolbar-title to="/music" class="white--text">
         <v-btn to="/music" icon color="white">
           <v-icon>mdi-music-circle-outline</v-icon>
@@ -23,19 +23,22 @@
           append-icon="mdi-magnify"
           @change="searchMusic"
           placeholder="Search..."
-          prepend-inner-icon="mdi-mic"
           class="mx-4"
           flat
-          rounded
           label="Search"
-          solo-inverted
         ></v-text-field>
       </v-row>
       <div class="flex-grow-1"></div>
       <v-btn color="white" text>登录</v-btn>
-    </v-toolbar>
-    <v-row>
-      <v-col lg="2" md="3" sm="4" xs="5">
+    </v-app-bar>
+    <v-row justify="center">
+      <v-col
+        v-show="$router.app._route.fullPath !=='/music/songDetail' "
+        lg="2"
+        md="3"
+        sm="4"
+        xs="5"
+      >
         <v-list dense>
           <v-list>
             <template v-for="(item, index) in musicSideItems">
@@ -54,18 +57,35 @@
             <v-spacer></v-spacer>
             <v-list-item two-line>
               <v-list-item-avatar size="45" tile>
-                <v-img src="https://cdn.vuetifyjs.com/images/cards/foster.jpg"></v-img>
+                <v-img v-if="$store.state.songAlbumPic" :src="$store.state.songAlbumPic.picUrl"></v-img>
               </v-list-item-avatar>
               <v-list-item-content class="align-self-start">
-                <v-list-item-title class="mb-2" v-text="'歌名'"></v-list-item-title>
+                <v-list-item-title class="mb-2" v-text="$store.state.audio.songsInfo.name"></v-list-item-title>
                 <v-list-item-subtitle v-text="'专辑名'"></v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+            <v-card-actions>
+              <v-btn @click="lastMusic()" icon>
+                <v-icon large color="red">mdi-skip-previous-circle</v-icon>
+              </v-btn>
+              <v-btn icon @click="startPlayOrPause()">
+                <v-icon
+                  large
+                  color="red"
+                >{{$store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
+              </v-btn>
+              <v-btn @click="nextMusic()" icon>
+                <v-icon large color="red">mdi-skip-next-circle</v-icon>
+              </v-btn>
+              <v-btn to="/music/songDetail" icon>
+                <v-icon color="red" large>mdi-music-circle</v-icon>
+              </v-btn>
+            </v-card-actions>
           </v-list>
         </v-list>
       </v-col>
       <v-col class="mainPage" lg="10" md="9" sm="8" xs="7">
-        <nuxt />
+        <nuxt-child keep-alive />
       </v-col>
     </v-row>
   </v-card>
@@ -110,7 +130,7 @@ export default {
   methods: {
     // 获取每日推荐专辑
     newgetMusic(e) {
-      this.$axios.get('http://localhost:3000' + e).then(res => {
+      this.$axios.get(this.$store.state.musicserve + e).then(res => {
         // console.log(res)
         this.$store.commit('changeMusicAblumData', res.result)
       })
@@ -119,13 +139,26 @@ export default {
     //音乐所搜
     searchMusic(e) {
       this.$axios
-        .get('http://localhost:3000/search?keywords=' + e)
+        .get(this.$store.state.musicserve + '/search?keywords=' + e)
         .then(res => {
           //   this.musicCardFlag = false
           // console.log(res.result.songs)
           this.$store.commit('changeMusicData', res.result)
           //   this.musicData = res.result
         })
+    },
+    // 控制音频的播放与暂停
+    startPlayOrPause() {
+      this.$store.commit('starOrpause')
+      // console.log(this.$refs)
+    },
+    //上一曲 $store.state.musicPlayList
+    lastMusic() {
+      this.$store.commit('lastMusic')
+    },
+    // 下一曲
+    nextMusic() {
+      this.$store.commit('nextMusic')
     }
   },
   created() {

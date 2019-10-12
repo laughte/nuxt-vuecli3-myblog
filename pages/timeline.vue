@@ -40,7 +40,7 @@ export default {
         case 'python':
           return 'red'
 
-        case 'JavaScript':
+        case 'js':
           return 'pink accent-2'
 
         case 'PHP':
@@ -48,6 +48,9 @@ export default {
 
         case 'java':
           return 'purple'
+
+        case '随笔':
+          return 'amber darken-1'
 
         case '诗经':
           return 'brown lighten-3'
@@ -58,7 +61,7 @@ export default {
         case '水彩':
           return 'light-blue'
 
-        case '古诗词':
+        case '诗词':
           return 'orange'
 
         case '小说':
@@ -78,7 +81,7 @@ export default {
           return 'pink accent-1'
 
         default:
-          return 'yellow'
+          return 'teal darken-2'
       }
     }
   }
