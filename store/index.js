@@ -7,6 +7,27 @@ export const state = () => ({
   userArticle: [],
   artype: [],
   userList: [],
+  zhihuData: [],
+  dailyNews: [],
+  colors: [
+    'red',
+    'pink',
+    'purple',
+    'indigo',
+    'blue',
+    'deep-purple',
+    'light-blue',
+    'cyan',
+    'teal',
+    'lime',
+    'amber',
+    'orange',
+    'yellow darken-1',
+    'deep-orange',
+    'brown',
+    'blue-grey'
+  ],
+  jokes: [],
   musicUser: {
     userId: 347230,
   },
@@ -342,13 +363,15 @@ export const mutations = {
   },
   showArticleMsg(state, item) {
     // console.log(item)
-    state.article.forEach((element) => {
-      if (element._id === item.id) {
-        element.msgFlag = !element.msgFlag
+
+    state.article.forEach(e => {
+      if (e._id === item.id) {
+        e.msgFlag = !e.msgFlag
         // console.log(item.res)
         if (item.res) {
-          element.msgData = item.res
-          // console.log(element)
+          debugger
+          e.msgData = item.res
+          // console.log(e)
         }
 
       }
@@ -490,8 +513,19 @@ export const mutations = {
       }
     })
     state.userCollect = arr
-  }
+  },
 
+
+  getzhihu(state, arr) {
+    state.zhihuData = arr
+  },
+  getjoke(state, arr) {
+    state.jokes = arr
+    // console.log(arr)
+  },
+  getnews(state, arr) {
+    state.dailyNews = arr
+  }
 
 }
 

@@ -43,7 +43,7 @@
       <v-divider></v-divider>
 
       <v-chip
-        :color="colors[Math.ceil(Math.random()*15)]"
+        :color="$store.state.colors[Math.ceil(Math.random()*15)]"
         :to="'/'+e"
         class="ma-2"
         :key="i"
@@ -76,25 +76,7 @@ export default {
   props: { isartpage: Boolean },
   data() {
     return {
-      keywords: '',
-      colors: [
-        'red',
-        'pink',
-        'purple',
-        'indigo',
-        'blue',
-        'deep-purple',
-        'light-blue',
-        'cyan',
-        'teal',
-        'lime',
-        'amber',
-        'orange',
-        'yellow darken-1',
-        'deep-orange',
-        'brown',
-        'blue-grey'
-      ]
+      keywords: ''
     }
   },
   methods: {

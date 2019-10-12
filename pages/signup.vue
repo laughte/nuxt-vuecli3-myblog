@@ -27,14 +27,8 @@
     </v-avatar>
 
     <v-card v-show="avatarflag" absolute top right>
-      <v-avatar
-        size="36px"
-        :key="i"
-        class="ma-4"
-        @click="imgsrcicon(e)"
-        v-for="(e,i) in tempurls.slice(Math.random()*10,10)"
-      >
-        <img alt="Avatar" :src="e" />
+      <v-avatar size="36px" :key="i" class="ma-4" @click="imgsrcicon(e)" v-for="(e,i) in tempurls">
+        <img alt="Avatar" :src="e.imageUrl" />
       </v-avatar>
       <v-card-actions>
         <v-btn @click="picAvatar()" text>确认</v-btn>
@@ -204,17 +198,11 @@ export default {
       //   })
 
       let res = await this.$axios.get(
-        'https://api.isoyu.com/api/picture/index?page=20'
+        'https://www.mxnzp.com/api/image/girl/list?page=1'
       )
 
-      res.data.forEach(e => {
-        e.pics.forEach(m => {
-          picUrl.push(m)
-        })
-      })
-
-      // console.log(picUrl)
-      this.tempurls = picUrl
+      // console.log(res)
+      this.tempurls = res.data.list
     },
     reset() {
       this.$refs.form.reset()

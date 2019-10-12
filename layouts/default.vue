@@ -278,8 +278,13 @@ export default {
       items: [
         {
           icon: 'mdi-apps',
-          title: '主页',
+          title: '广场',
           to: '/'
+        },
+        {
+          icon: 'mdi-apps',
+          title: '个人主页',
+          to: `/${this.$store.state.user.userName}`
         },
         {
           icon: 'mdi-border-color',
@@ -349,6 +354,41 @@ export default {
           console.log(err)
         })
     },
+
+    getZhiHuData() {
+      this.$axios
+        .get('https://api.isoyu.com/api/Zhihu/zhihu_daily')
+        .then(res => {
+          // console.log(res)
+          this.$store.commit('getzhihu', res.data.stories)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    getNews() {
+      this.$axios
+        .get('https://www.mxnzp.com/api/news/list?typeId=521&page=1')
+        .then(res => {
+          // console.log(res)
+          this.$store.commit('getnews', res.data)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+    getJokeData() {
+      this.$axios
+        .get('https://www.mxnzp.com/api/jokes/list?page=1')
+        .then(res => {
+          this.$store.commit('getjoke', res.data.list)
+          // console.log(res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+
     showCollect() {
       if (this.rightDrawer) {
         this.rightDrawer = false
@@ -508,9 +548,15 @@ export default {
     if (this.$store.state.article.length < 1) {
       this.getdata()
     }
-    // else {
-    // console.log(this.$store.state.article)
-    // }
+    if (this.$store.state.zhihuData.length < 1) {
+      this.getZhiHuData()
+    }
+    if (this.$store.state.jokes.length < 1) {
+      this.getJokeData()
+    }
+    if (this.$store.state.dailyNews.length < 1) {
+      this.getNews()
+    }
   },
   mounted() {
     // this.load()

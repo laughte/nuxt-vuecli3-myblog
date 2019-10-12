@@ -233,7 +233,12 @@ export default {
   },
   created() {
     // console.log(this.$route.params.name)
-    this.selectArticle(this.$route.params.name)
+    if (this.$route.params.name !== 'undefined') {
+      this.selectArticle(this.$route.params.name)
+    } else {
+      alert('不好意思,你还没有登录呢')
+    }
+
     // this.selectName(this.$route.params.name)
   }
 }
