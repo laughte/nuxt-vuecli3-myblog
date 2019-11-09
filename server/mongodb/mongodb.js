@@ -84,20 +84,20 @@ class Db {
       })
     })
   }
-// array search 
-  findArray(collectName,json1,json2){
-    return new Promise ((resolve,reject)=>{
-      this.connect().then(db=>{
-        let result = db.collection(collectName).find(json1,json2);
-          result.toArray((err, doc) => {
-            if (err) {
-              reject(err);
-              return;
-            } else {
-              resolve(doc);
-            }
+  // array search
+  findArray(collectName, json1, json2) {
+    return new Promise((resolve, reject) => {
+      this.connect().then(db => {
+        let result = db.collection(collectName).find(json1, json2);
+        result.toArray((err, doc) => {
+          if (err) {
+            reject(err);
+            return;
+          } else {
+            resolve(doc);
+          }
 
-          })
+        })
       })
     })
   }
@@ -120,19 +120,36 @@ class Db {
 
   }
 
-  updateArray(collectName,json,json2){
-    return new Promise((resolve,reject)=>{
-      this.connect().then(db=>{
-        db.collection(collectName).updateOne(json,{$addToSet:json2}),(err,result)=>{
-          if(err){
+  updateArray(collectName, json, json2) {
+    return new Promise((resolve, reject) => {
+      this.connect().then(db => {
+        db.collection(collectName).updateOne(json, { $addToSet: json2 }, (err, result) => {
+          if (err) {
             reject(err);
-          }else{
+          } else {
             resolve(result);
           }
-        }
+
+
+        })
+      })
+    })
+  }  //$pull
+
+  deleteArray(collectName, json, json2) {
+    return new Promise((resolve, reject) => {
+      this.connect().then(db => {
+        db.collection(collectName).updateOne(json, { $pull: json2 }, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        })
       })
     })
   }
+
 
   remove(collectName, json) {
     return new Promise((resolve, reject) => {

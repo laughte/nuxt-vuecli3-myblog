@@ -2,11 +2,11 @@
   <v-layout column>
     <v-flex>
       <v-row justify="center">
-        <v-col xl="5" lg="7" md="8" sm="8" xs="12">
+        <v-col class="pa-0"  xl="6" lg="7" md="12" sm="12" xs="12">
           <!-- <v-breadcrumbs :items="links"></v-breadcrumbs> -->
           <nuxt-child keep-alive />
         </v-col>
-        <v-col xl="3" lg="4" md="4" sm="4">
+        <v-col  xl="3" lg="4">
           <v-row class="sidecard" justify="center">
             <v-col xl="10" lg="10" md="12" sm="12">
               <side />
@@ -19,11 +19,10 @@
 </template>
 
 <script>
-import axios from 'axios'
+
 import side from '~/components/side.vue'
-import msgBoard from '~/components/msgBoard.vue'
 export default {
-  components: { side, msgBoard },
+  components: { side },
   async asyncData() {},
   data() {
     return {
@@ -46,13 +45,9 @@ export default {
           to: '/' + this.$route.params.name + '/' + this.$route.params.id
         }
       ]
-      // datas: [{ title: 'nimabi', article: 'woyaorinimabi' }]
     }
   },
   methods: {
-    readMore(e) {
-      this.$router.push({ path: '/inspire', query: { content: e } })
-    },
     showMsgBoard(e) {
       if (!e.msgFlag) {
         if (!e.msgData) {
@@ -75,10 +70,10 @@ export default {
     },
     selectArticle(e) {
       let Json = {}
-      if (this.$store.state.artype.indexOf(e) > -1) {
+      if (this.$store.state.content.types.indexOf(e) > -1) {
         Json = {
           data: e,
-          type: 'articleType'
+          type: 'type'
         }
       } else {
         Json = {
@@ -88,55 +83,7 @@ export default {
       }
       this.$store.commit('selectArticle', Json)
     },
-    getColor(e) {
-      switch (e) {
-        case 'python':
-          return 'red'
 
-        case 'js':
-          return 'pink accent-2'
-
-        case 'PHP':
-          return 'teal'
-
-        case 'java':
-          return 'purple'
-
-        case '随笔':
-          return 'amber darken-1'
-
-        case '诗经':
-          return 'brown lighten-3'
-
-        case '散文':
-          return 'cyan lighten-3'
-
-        case '水彩':
-          return 'light-blue'
-
-        case '诗词':
-          return 'orange'
-
-        case '小说':
-          return 'lime'
-        case '素描':
-          return 'light-green'
-        case '油画':
-          return 'amber'
-
-        case '插画':
-          return 'blue-grey'
-
-        case 'photoshop':
-          return 'cyan accent-2'
-
-        case 'painter':
-          return 'pink accent-1'
-
-        default:
-          return 'teal darken-2'
-      }
-    }
   },
   watch: {
     routerData: function(n) {
@@ -148,7 +95,7 @@ export default {
       return this.$route.params.name
     }
   },
-  created() {
+  activated() {
     // console.log(this.$route.params.name)
     this.selectArticle(this.$route.params.name)
     // this.selectName(this.$route.params.name)

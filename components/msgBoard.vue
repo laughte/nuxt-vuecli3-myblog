@@ -1,20 +1,8 @@
 <template>
-  <v-card flat>
-    <v-sheet class="lighten-3 white--text" color="#9C27B0" tile>
-      <v-icon class="ml-2" small color="white">mdi-chat-processing</v-icon>
-    </v-sheet>
-
+  <v-card flat color="transparent">
     <v-list-item two-line>
-      <!-- <v-list-item-avatar class="d-none d-sm-none d-md-flex" color="pink" size="110">
-        <img v-if="$store.state.user.imgsrc" :src="$store.state.user.imgsrc" alt />
-        <img v-else :src="$store.state.user.imgsrc" alt />
-        <span class="white--text headline">头像</span>
-      </v-list-item-avatar>-->
       <v-list-item-content class="align-self-start">
         <v-textarea solo flat filled v-model="msgcontent" name="input-7-4" label="真的不来写两句吗???"></v-textarea>
-        <!-- <v-list-item-title class="headline mb-2" v-text="item.title"></v-list-item-title> -->
-
-        <!-- <v-list-item-subtitle v-text="item.artist"></v-list-item-subtitle> -->
         <v-card-actions>
           <v-btn
             :disabled="btnDisabled && $store.state.user.userName ? false:true"
@@ -22,40 +10,33 @@
             color="warning"
             @click="addmsg"
           >评论</v-btn>
-          <!-- <v-btn :disabled="btnabled" small color="warning" @click="addmsg">取消</v-btn> -->
         </v-card-actions>
       </v-list-item-content>
     </v-list-item>
 
     <v-divider></v-divider>
-
-    <v-list three-line>
-      <template v-for="(item, index) in msgContents.msgData">
-        <!-- <v-subheader :key="index" v-text="item.time"></v-subheader> -->
-        <v-list-item :key="item.title">
-          <v-list-item-avatar>
-            <v-img :src="item.userImg"></v-img>
-          </v-list-item-avatar>
-          <v-list-item-content class="pt-0">
-            <v-list-item-title>
-              {{item.userName}}
-              <span>{{item.time}}</span>
-            </v-list-item-title>
-            <v-list-item-subtitle v-html="item.msg"></v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-        <v-divider :key="index" inset></v-divider>
+    <v-list color="transparent">
+      <transition-group appear>
+      <template v-for="(e,i) in comments">
+        <live-msg  :item="e" :key="e._id" />
+        <v-divider class="mb-6" v-if="i !== comments.length-1" :key="i" inset></v-divider>
       </template>
+      </transition-group>
     </v-list>
+
+
 
     <div class="msgfooter"></div>
   </v-card>
 </template>
 
 <script>
-export default {
+  import liveMsg from './liveMsg'
+  export default {
+    components:{liveMsg},
   props: {
-    msgContents: {}
+    comments: Array,
+    contdata:Object,
   },
   data() {
     return {
@@ -66,39 +47,26 @@ export default {
   },
 
   methods: {
-    formatDate(date) {
-      var y = date.getFullYear()
-      var m = date.getMonth() + 1
-      m = m < 10 ? '0' + m : m
-      var d = date.getDate()
-      d = d < 10 ? '0' + d : d
-      var h = date.getHours()
-      h = h < 10 ? '0' + h : h
-      var minute = date.getMinutes()
-      minute = minute < 10 ? '0' + minute : minute
-      var second = date.getSeconds()
-      second = second < 10 ? '0' + second : second
-      return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second
-    },
+
     addmsg() {
       if (this.$store.state.user.userName) {
         let date = new Date()
         let msgItem = {
-          articleId: this.msgContents._id,
+          articleId: this.contdata._id,
           userId: this.$store.state.user._id,
           userImg: this.$store.state.user.imgsrc,
           userName: this.$store.state.user.userName,
-          time: this.formatDate(date),
-          msg: this.msgcontent,
+          time: Date.parse(date),
+          msg: this.msgcontent.trim(),
           like: 0
         }
-        this.$store.commit('addArticleReply', msgItem)
+
         this.$axios
           .post('/api/msgInsert', msgItem)
           .then(res => {
             this.msgcontent = ''
-            // this.$store.commit('addArticleReply', res.ops[0])
-            console.log(res)
+            this.$emit('appendItem',res.ops[0]);
+            this.$emit("addReply");
           })
           .catch(err => {
             console.log(err)
@@ -120,21 +88,18 @@ export default {
     }
   },
   computed: {
-    listcontent() {
+    lContent() {
       return this.msgcontent.length
     }
   },
   watch: {
-    listcontent: function(n, o) {
-      if (n > 3) {
-        this.btnDisabled = true
-      } else {
-        this.btnDisabled = false
-      }
+    lContent: function(n, o) {
+        this.btnDisabled = n > 3
     }
   }
 }
 </script>
 
 <style>
+
 </style>

@@ -1,3 +1,4 @@
+
 <style scoped>
 .v-form {
   width: 450px;
@@ -11,7 +12,7 @@
 
 <template>
   <v-form
-    class="demo-ruleForm pa-5"
+    class="demo-ruleForm pa-5 textcolor--text"
     :color="$store.state.sidecolor"
     ref="form"
     v-model="valid"
@@ -34,8 +35,8 @@
         <v-btn @click="picAvatar()" text>确认</v-btn>
       </v-card-actions>
     </v-card>
-    <v-text-field v-model="user.username" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
-    <v-text-field v-model="user.email" :rules="emailRules" label="E-mail" required></v-text-field>
+    <v-text-field color="textcolor" v-model="user.username" :counter="10" :rules="nameRules" label="Name" required></v-text-field>
+    <v-text-field color="textcolor" v-model="user.email" :rules="emailRules" label="E-mail" required></v-text-field>
     <!-- <v-text-field
       v-model="user.tel"
       :rules="telRules"
@@ -43,6 +44,7 @@
       required
     ></v-text-field>-->
     <v-text-field
+      color="textcolor"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
       :type="show1 ? 'text' : 'password'"
       v-model="user.pass"
@@ -103,8 +105,8 @@
 </template>
 
 <script>
-import CryptoJS from 'crypto-js'
-
+// import CryptoJS from 'crypto-js'
+import { mapActions } from 'vuex'
 export default {
   data: () => ({
     tempurls: [],
@@ -114,7 +116,7 @@ export default {
     alertflag: false,
     issuc: false,
     isSuccess: {
-      true: 'success',
+      true: 'info',
       false: 'error'
     },
     valid: true,
@@ -153,8 +155,9 @@ export default {
   }),
 
   methods: {
+    ...mapActions(['userlogin']),
     imgsrcicon(e) {
-      this.user.imgsrc = e
+      this.user.imgsrc = e.imageUrl
       // console.log(this.user.imgsrc)
     },
     picAvatar() {
@@ -171,11 +174,11 @@ export default {
             this.subtitle = res.msg
             if (res.status === 200) {
               this.issuc = true
-              this.$store.commit('USERLOGIN', res.data)
+              // console.log(res)
+              this.userlogin(res.data)
               setTimeout(() => {
-                // this.$router.push({ path: "/" });
-                // this.$router.go(-1)
-                this.$router.push('/')
+                this.$router.go(-1)
+                // this.$router.push('/')
               }, 1000)
             }
           })

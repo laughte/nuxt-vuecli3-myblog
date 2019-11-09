@@ -1,78 +1,80 @@
 <template>
-  <v-card flat>
-    <v-card-actions class="pt-0 pa-0">
-      <v-btn :color="getColor(initData.articleType)" text class="pa-0" :to="'/'+initData.userName">
-        <!-- <v-avatar class="profile" size="35">
-            <img :src="contentdata.avatar" alt />
-        </v-avatar>-->
+  <v-card flat >
+    <v-card-actions  class="pt-0 pa-0" style="width: 100%;overflow: hidden">
+
+      <v-btn color="textcolor" text class="pa-0" :to="'/'+initData.userName">
         <v-icon small>mdi-account-edit</v-icon>
         {{ initData.userName ? initData.userName : "未知用户" }}
       </v-btn>
       <v-btn
-        :color="getColor(initData.articleType)"
+        color="textcolor"
         class="pa-0"
         text
-        :to="'/'+initData.articleType"
+        :to="'/'+initData.type"
       >
         <v-icon small>mdi-file</v-icon>
-        {{ initData.articleType ? initData.articleType : "未分类" }}
-      </v-btn>
-      <v-btn :color="getColor(initData.articleType)" class="pa-0" text to="/timeline">
-        <v-icon small>mdi-calendar-range</v-icon>
-        {{ new Date(initData.time).toLocaleString()}}
+        {{ initData.type ? initData.type : "未分类" }}
       </v-btn>
     </v-card-actions>
-    <editor
-      id="editor"
-      :autofocus="true"
-      :init-data="initData"
-      ref="editor"
-      @save="onSave"
-      @ready="onReady"
-      @change="onChange"
-    />
+    <v-btn style="opacity: 0.3"  class="pa-0 pl-2" text to="/timeline">
+      {{ new Date(initData.time).toLocaleString()}}
+    </v-btn>
+    <v-card-title class="cyan--text">{{initData.title}}</v-card-title>
+
+    <no-ssr>
+      <mavon-editor
+        boxShadowStyle="none"
+        :scrollStyle="true"
+        defaultOpen="preview"
+        previewBackground="transparent"
+        :ishljs = "true"
+        :subfield="false"
+        :toolbarsFlag="false"
+        :editable="false"
+        :value="initData.content" />
+    </no-ssr>
+
+
     <v-spacer />
 
     <v-card-actions class="pt-0">
-      <v-btn text @click="$store.commit('addArticleLike',initData)">
+      <v-btn color="textcolor" text @click="addLike">
         <v-icon small>mdi-heart</v-icon>
         <p>{{ initData.like }}</p>
         {{'喜欢'}}
       </v-btn>
-      <!-- </v-badge> -->
-      <!-- 
-          <v-badge overlap class="mx-5">
-      <template v-slot:badge>{{contentdata.articleCollect}}</template>-->
-      <v-btn text @click="$store.commit('addArticleCollect',initData)">
+
+      <v-btn color="textcolor" text @click="addCollect">
         <v-icon small>mdi-star</v-icon>
         <p v-text="initData.collect?initData.collect.length:'0'"></p>
         {{'收藏'}}
       </v-btn>
-      <!-- </v-badge> -->
 
-      <!-- <v-badge overlap class="mx-5">
-      <template v-slot:badge>{{contentdata.articleReply}}</template>-->
-      <v-btn text @click="showMsgBoard(initData)">
+      <v-btn color="textcolor" text>
         <v-icon small>mdi-chat-processing</v-icon>
         <p v-text="initData.reply"></p>
         {{'评论'}}
       </v-btn>
-      <!-- </v-badge> -->
+      <v-btn  class="mx-3 textcolor--text" icon>
+        <v-icon small>mdi-eye</v-icon>
+        <p v-text="initData.see"></p>
+      </v-btn>
 
       <div class="flex-grow-1"></div>
-      <v-btn v-if="$store.state.ifEdite" @click="save">保存更改</v-btn>
+<!--      <v-btn v-if="$store.state.ifEdite" @click="save">保存更改</v-btn>-->
     </v-card-actions>
-    <msg-board :msgContents="initData" v-show="initData.msgFlag" />
+    <msg-board :contdata="initData" :comments = "msgComments"  @appendItem="appendItem" />
   </v-card>
 </template>
 <script>
-import msgBoard from '~/components/msgBoard.vue'
-import axios from 'axios'
+import msgBoard from '~/components/msgBoard.vue';
+import {mapMutations} from 'vuex'
 export default {
   components: { msgBoard },
   data() {
     return {
       initData: {},
+      msgComments:[],
       links: [
         {
           text: 'home',
@@ -94,31 +96,30 @@ export default {
   },
 
   methods: {
+    ...mapMutations(['articleEdit']),
     save() {
       this.$refs.editor.save()
     },
     getInitData(id) {
-      this.$store.state.article.forEach(e => {
+      this.$store.state.content.article.forEach(e => {
         if (e._id === id) {
           this.initData = e
+          this.showMsgBoard(e)
         }
       })
     },
-    showMsgBoard(e) {
-      if (!e.msgData) {
-        this.$axios
-          .post('/api/msgSearch', {
-            articleId: e._id
-          })
-          .then(res => {
-            this.$store.commit('showArticleMsg', {
-              id: e._id,
-              res: res
-            })
-          })
-      } else {
-        this.$store.commit('showArticleMsg', { id: e._id })
+    showMsgBoard(item) {
+      if(this.msgComments.length===0){
+        let Json = {
+          articleId: item._id
+        };
+        this.$axios.post('/api/msgSearch', Json).then(res => {
+          this.msgComments = res.reverse();
+        });
       }
+    },
+    appendItem(e) {
+      this.msgComments.unshift(e);
     },
 
     onSave(response) {
@@ -127,61 +128,17 @@ export default {
         data: response.blocks
       })
     },
-    onReady() {
-      console.log('ready')
+    addCollect(){
+      this.articleEdit(
+        {type:'collect',data:this.initData}
+      )
     },
-    onChange() {
-      console.log('changed')
+    addLike(){
+      this.articleEdit(
+        {type:'like',data:this.initData}
+      )
     },
-    getColor(e) {
-      switch (e) {
-        case 'python':
-          return 'red'
 
-        case 'js':
-          return 'pink accent-2'
-
-        case 'PHP':
-          return 'teal'
-
-        case 'java':
-          return 'purple'
-
-        case '随笔':
-          return 'amber darken-1'
-
-        case '诗经':
-          return 'brown lighten-3'
-
-        case '散文':
-          return 'cyan lighten-3'
-
-        case '水彩':
-          return 'light-blue'
-
-        case '诗词':
-          return 'orange'
-
-        case '小说':
-          return 'lime'
-        case '素描':
-          return 'light-green'
-        case '油画':
-          return 'amber'
-
-        case '插画':
-          return 'blue-grey'
-
-        case 'photoshop':
-          return 'cyan accent-2'
-
-        case 'painter':
-          return 'pink accent-1'
-
-        default:
-          return 'teal darken-2'
-      }
-    }
   },
   watch: {
     routeridData: function(n) {
@@ -193,9 +150,24 @@ export default {
       return this.$route.params.id
     }
   },
-  created() {
+  activated() {
+
     this.getInitData(this.$route.params.id)
+
     // console.log(this.$route.query.content)
+  },
+  mounted() {
+    this.showMsgBoard(this.initData)
   }
+
 }
 </script>
+<style scoped>
+  .v-note-wrapper{
+    background-color: rgba(255, 255, 255, 0) !important;
+    z-index: 1 !important;
+  }
+  .markdown-body{
+    color:unset;
+  }
+</style>

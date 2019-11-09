@@ -4,9 +4,11 @@
 }
 #star {
   position: absolute;
+  left: 0;
   background: black;
   height: 85vh;
   width: 100vw;
+  overflow:  hidden;
 }
 @keyframes starlight {
   from {
@@ -138,7 +140,7 @@
 
     }"
       :key="i"
-      v-for="i in 5000"
+      v-for="i in 300"
     ></div>
 
     <div
@@ -149,7 +151,7 @@
     left:Math.random()*1920+'px',
     top:Math.random()*850+'px',
     background:'rgb'+'('+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+')',
-    filter:'blur(330px)'
+    filter:'blur(200px)'
 
 
     }"
@@ -178,34 +180,6 @@ filter:'blur(1px)'
       v-for="i in 200"
     ></div>
 
-    <!-- <div
-      class="star"
-      :style="{width:Math.random()*120+'px',
-    height:Math.random()*120+'px',
-    position:'absolute',
-    left:Math.random()*1920+'px',
-    top:Math.random()*1080+'px',
-    background:'rgb'+'('+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+')',
-    filter:'blur(150px)'
-    }"
-      :key="i+'不知道'"
-      v-for="i in 300"
-    ></div>-->
-
-    <!-- <div
-      class="star"
-      :style="{width:Math.random()*100+'px',
-    height:Math.random()*100+'px',
-    position:'absolute',
-    left:Math.random()*1920+'px',
-    top:Math.random()*1080+'px',
-    background:'rgb'+'('+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+')',
-    filter:'blur(130px)'
-    }"
-      :key="i+'你大爷的'"
-      v-for="i in 100"
-    ></div>
-    -->
     <div
       class="star"
       :style="{width:Math.random()*120+'px',
@@ -219,20 +193,6 @@ filter:'blur(1px)'
       :key="i+'好烦哦'"
       v-for="i in volume2*2"
     ></div>
-
-    <!-- <div
-      class="star"
-      :style="{width:Math.random()*20+'px',
-    height:Math.random()*20+'px',
-    position:'absolute',
-    left:Math.random()*1920+'px',
-    top:Math.random()*1080+'px',
-    background:'rgb'+'('+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+','+Math.round(Math.random() * 100 + 155)+')',
-    filter:'blur(50px)'
-    }"
-      :key="i"
-      v-for="i in 600"
-    ></div>-->
   </v-card>
 </template>
 
@@ -246,62 +206,14 @@ export default {
       volume3: 10
     }
   },
-  methods: {
-    // createEl(n, x, y, c, blur, name) {
-    //   let el = document.createElement('div')
-    //   el.style.width = `${n}px`
-    //   el.style.height = `${n}px`
-    //   el.style.left = `${x}px`
-    //   el.style.top = `${y}px`
-    //   el.style.background = c
-    //   el.style.borderRadius = '50%'
-    //   el.style.position = 'absolute'
-    //   el.style.transitionProperty = 'all'
-    //   el.style.transitionDuration = `${n}s`
-    //   if (blur) {
-    //     el.style.filter = `blur(${blur}px)`
-    //   }
-    //   if (name) {
-    //     el.className = `${name}`
-    //   }
-    //   let app = document.getElementById('star')[0]
-    //   app.appendChild(el)
-    // },
-    // star(size, blur, name) {
-    //   let r = Math.random() * 100
-    //   let r1 = Math.random() * 10
-    //   let c = `rgb(${Math.round(Math.random() * 100 + 155)},${Math.round(
-    //     Math.random() * 100 + 155
-    //   )},${Math.round(Math.random() * 100 + 155)})`
-    //   if (size && blur) {
-    //     let r2 = Math.random() * size
-    //     this.createEl(r2, r * 19.2, r1 * 108, c, blur, name)
-    //   } else {
-    //     let r2 = Math.random() * 3
-    //     this.createEl(r2, r * 19.2, r1 * 108, c, 0, name)
-    //   }
-    // }
+  activated() {
+    if(this.$route.fullPath ==='/starSky' ){
+      this.$vuetify.theme.dark=true
+    }
+  },
+  beforeCreate() {
+
   }
-  // created() {
-  //   for (let i = 0; i < 2000; i++) {
-  //     this.star(0, 0)
-  //   }
-
-  //   for (let i = 0; i < 200; i++) {
-  //     this.star(120, 150)
-  //     // star(100, 130)
-  //     // star(70, 100)
-  //     this.star(70, 90)
-  //     this.star(20, 50)
-  //   }
-
-  //   for (let i = 0; i < 500; i++) {
-  //     this.star(30, 60)
-  //   }
-  //   for (let i = 0; i < 100; i++) {
-  //     this.star(6, 1, 'star')
-  //   }
-  // }
 }
 </script>
 

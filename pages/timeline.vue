@@ -3,7 +3,7 @@
     <v-col lg="8" md="10" sm="12">
       <v-timeline>
         <v-timeline-item
-          v-for="(item,index) in $store.state.article"
+          v-for="(item,index) in $store.state.content.article"
           :key="index"
           :color="getColor(item.articleType)"
           small
@@ -14,18 +14,7 @@
               v-text="new Date(item.time).toLocaleString()"
             ></span>
           </template>
-          <v-card class="elevation-2">
-            <v-card-title
-              :class="`headline font-weight-light mb-4 ${getColor(item.articleType)}--text`"
-              v-if="item.blocks[0]"
-            >{{item.blocks[0].data.text}}</v-card-title>
-            <v-card-text>
-              <v-list-item-subtitle v-if="item.blocks[1]" v-text="item.blocks[1].data.text"></v-list-item-subtitle>
-              <v-list-item-subtitle v-if="item.blocks[2]" v-text="item.blocks[2].data.text"></v-list-item-subtitle>
-              <v-list-item-subtitle v-if="item.blocks[3]" v-text="item.blocks[3].data.text"></v-list-item-subtitle>
-              <v-list-item-subtitle v-if="item.blocks[4]" v-text="item.blocks[4].data.text"></v-list-item-subtitle>
-            </v-card-text>
-          </v-card>
+          <card class="elevation-2" :item="item" />
         </v-timeline-item>
       </v-timeline>
     </v-col>
@@ -33,7 +22,9 @@
 </template>
 
 <script>
+  import card from '~/components/card.vue'
 export default {
+    components:{card},
   methods: {
     getColor(e) {
       switch (e) {

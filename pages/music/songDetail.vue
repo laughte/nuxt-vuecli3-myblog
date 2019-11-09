@@ -1,32 +1,23 @@
 <template>
-  <v-card flat>
+  <v-card flat color="transparent">
+    <v-img style="position: absolute ;width: 100%;height: auto;filter: blur(55px);opacity:0.2;z-index: 0"
+           v-if="$store.state.music.album"
+           :src="$store.state.music.album.picUrl?$store.state.music.album.picUrl:$store.state.music.album.coverImgUrl">
+    </v-img>
     <v-list-item three-line>
       <v-list-item-avatar size="220">
-        <v-img v-if="$store.state.songAlbumPic" :src="$store.state.songAlbumPic.picUrl"></v-img>
+        <v-img :class="$store.state.music.playing?'cycleimg':''"
+               v-if="$store.state.music.album"
+               :src="$store.state.music.album.picUrl?$store.state.music.album.picUrl:$store.state.music.album.coverImgUrl">
+        </v-img>
       </v-list-item-avatar>
       <v-list-item-content class="align-self-start">
-        <v-list-item-title class="mb-2" v-text="$store.state.audio.songsInfo.name"></v-list-item-title>
+        <v-list-item-title class="mb-2" v-text="$store.state.music.songsInfo.name"></v-list-item-title>
         <v-list-item-subtitle v-text="'专辑名'"></v-list-item-subtitle>
+        <v-list-item-subtitle v-text="$store.state.music.album.name"></v-list-item-subtitle>
       </v-list-item-content>
-      <v-list-item-content>{{musicLyric?musicLyric.lyric:'没有歌词'}}</v-list-item-content>
+      <v-list-item-content class="lyricstyle" style="height: 250px;overflow: auto">{{musicLyric?musicLyric.lyric:'没有歌词'}}</v-list-item-content>
     </v-list-item>
-    <v-card-actions>
-      <v-btn @click icon>
-        <v-icon large color="red">mdi-skip-previous-circle</v-icon>
-      </v-btn>
-      <v-btn icon @click>
-        <v-icon
-          large
-          color="red"
-        >{{$store.state.audio.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"}}</v-icon>
-      </v-btn>
-      <v-btn @click icon>
-        <v-icon large color="red">mdi-skip-next-circle</v-icon>
-      </v-btn>
-      <v-btn to="/music/songDetail" icon>
-        <v-icon color="red" large>mdi-music-circle</v-icon>
-      </v-btn>
-    </v-card-actions>
     <v-divider class="mx-4"></v-divider>
 
     <v-card-text>
@@ -37,7 +28,7 @@
               <v-list-item-avatar>
                 <v-img :src="item.user.avatarUrl"></v-img>
               </v-list-item-avatar>
-              <v-list-item-content class="pt-0">
+              <v-list-item-content class="pa-0">
                 <v-list-item-subtitle>
                   <a style="text-decoration:none" href>{{item.user.nickname}}</a>
                   : {{item.content}}
@@ -50,19 +41,18 @@
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-            <v-divider v-if="index + 1 < musicCommentHot.length" inset :key="index"></v-divider>
+            <v-divider class="mb-4" v-if="index + 1 < musicCommentHot.length" inset :key="index"></v-divider>
           </template>
         </v-col>
         <v-col lg="4">
-          <v-list three-line>
+          <v-list three-line color="transparent">
             <v-subheader v-text="'包含此歌的歌单'"></v-subheader>
             <v-divider inset></v-divider>
             <template v-for="(item) in RelatedRecommend">
-              <v-list-item :key="item.title" @click>
+              <v-list-item :key="item.title" @click="getMusicAlbumm(item)">
                 <v-list-item-avatar tile>
                   <v-img :src="item.coverImgUrl"></v-img>
                 </v-list-item-avatar>
-
                 <v-list-item-content>
                   <v-list-item-title>{{item.name}}</v-list-item-title>
                   <v-list-item-subtitle>{{item.description}}</v-list-item-subtitle>
@@ -122,13 +112,41 @@ export default {
   },
 
   methods: {
+    getMusicAlbumm(e) {
+      this.$store.commit('getmusic', { type: 'album', data: e })
+      this.$router.push('/music/albumDetail')
+      this.$axios
+        .get(this.$store.state.musicserve + '/playlist/detail?id=' + e.id)
+        .then(res => {
+          this.musicCardFlag = false //musicAlbum && !musicCardFlag
+          // 获取歌单全部歌曲id来请求歌曲
+          //   console.log(res.playlist.trackIds)
+          let idlists = []
+          res.playlist.trackIds.forEach((e, i) => {
+            idlists.push(e.id)
+          })
+
+          this.$axios
+
+            .get(
+              this.$store.state.musicserve +
+              '/song/detail?ids=' +
+              idlists.join(',')
+            )
+            .then(res => {
+              this.$store.commit('getmusic', { type: 'songs', data: res.songs })
+              // this.$store.commit('getmusic',{type:'playlist',data:res.songs})
+            })
+        })
+    },
+
     // 获取歌曲评论
     getMusicComment() {
       this.$axios
         .get(
           this.$store.state.musicserve +
             '/comment/music?id=' +
-            this.$store.state.musicUrl.id
+            this.$store.state.music.song.id
         )
         .then(res => {
           //   console.log(res)
@@ -143,7 +161,7 @@ export default {
         .get(
           this.$store.state.musicserve +
             '/lyric?id=' +
-            this.$store.state.musicUrl.id
+            this.$store.state.music.song.id
         )
         .then(res => {
           //   console.log(res)
@@ -158,7 +176,7 @@ export default {
         .get(
           this.$store.state.musicserve +
             '/simi/playlist?id=' +
-            this.$store.state.musicUrl.id
+            this.$store.state.music.song.id
         )
         .then(res => {
           //   console.log(res)  sideTitle
@@ -172,7 +190,7 @@ export default {
         .get(
           this.$store.state.musicserve +
             '/simi/song?id=' +
-            this.$store.state.musicUrl.id
+            this.$store.state.music.song.id
         )
         .then(res => {
           //   console.log(res)
@@ -181,10 +199,8 @@ export default {
     },
     // 播放相似歌曲
     getPlay(e) {
-      this.$store.commit('updateMusicPlayList', e)
-      this.$store.commit('changeSong', e)
-      //   console.log(e)
-      //   this.$store.commit('getSongAlbum', e)
+      this.$store.dispatch('playlist', e)
+
     },
     getLikeUser() {
       //  /simi/user?id=
@@ -192,7 +208,7 @@ export default {
         .get(
           this.$store.state.musicserve +
             '/simi/user?id=' +
-            this.$store.state.musicUrl.id
+            this.$store.state.music.song.id
         )
         .then(res => {
           console.log(res)
@@ -200,15 +216,51 @@ export default {
         })
     }
   },
-  created() {
+  activated(){
     this.getMusicComment()
     this.getMusicLyric()
     this.getRelatedRecommend()
     this.getSimilarSongs()
-    // this.getLikeUser()
   }
+
+    // this.getLikeUser()
+
 }
 </script>
 
 <style>
+  .cycleimg{
+    animation:cyclepic 6s linear infinite forwards;
+  }
+  @keyframes cyclepic {
+    from{
+      transform: rotate(0);
+    }
+    to{
+      transform: rotate(360deg);
+    }
+  }
+
+
+    /*滚动条样式*/
+  .lyricstyle::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width: 8px;
+    /*高宽分别对应横竖滚动条的尺寸*/
+    height: 0px;
+  }
+
+  .lyricstyle::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(230, 203, 233, 0.2);
+    background: rgba(255,255,255,0.3);
+  }
+
+  .lyricstyle::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    box-shadow: inset 0 0 5px rgba(223, 206, 235, 0.2);
+    border-radius: 5px;
+    background: rgba(234, 204, 235, 0.1);
+  }
 </style>

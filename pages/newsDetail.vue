@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <v-card :loading="loading" class="mx-auto my-12">
+  <v-row justify="center">
+    <v-col xl="8" lg="10">
+
+    <v-card flat color="transparent" :loading="loading" class="mx-auto my-12">
       <v-img :src="newsdata.cover"></v-img>
 
       <v-list-item two-line>
@@ -19,7 +21,8 @@
         <v-img :key="i" :src="e.imgSrc" v-for="(e,i) in newsdata.images"></v-img>
       </v-card-text>
     </v-card>
-  </div>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -41,7 +44,7 @@ export default {
         })
     }
   },
-  created() {
+  activated() {
     this.getDetail(this.$route.params.id)
   }
 }

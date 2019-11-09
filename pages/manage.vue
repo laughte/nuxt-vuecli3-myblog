@@ -1,8 +1,8 @@
 <template>
   <transition appear>
-    <v-card flat dark>
+    <v-card flat color="cyan" dark>
       <v-card-title>
-        Nutrition
+        文章管理
         <div class="flex-grow-1"></div>
         <v-text-field
           v-model="search"
@@ -15,7 +15,7 @@
       <v-data-table
         light
         :headers="headers"
-        :items="$store.state.article"
+        :items="$store.state.content.article"
         :page.sync="page"
         :items-per-page="itemsPerPage"
         @click:row="showitem"
@@ -35,11 +35,11 @@
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="editedItem.userName" label="name"></v-text-field>
                     </v-col>
-                    <!-- <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.blocks[0].data.text" label="title"></v-text-field>
-                    </v-col>-->
                     <v-col cols="12" sm="6" md="4">
-                      <v-text-field v-model="editedItem.articleType" label="type"></v-text-field>
+                      <v-text-field v-model="editedItem.title" label="title"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field v-model="editedItem.type" label="type"></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field v-model="editedItem.collect" label="collect"></v-text-field>
@@ -59,8 +59,8 @@
 
               <v-card-actions>
                 <div class="flex-grow-1"></div>
-                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                <v-btn color="textcolor" text @click="close">Cancel</v-btn>
+                <v-btn color="textcolor" text @click="save">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -68,7 +68,7 @@
         </template>
 
         <template v-slot:item.title="{ item }">
-          <span v-if="item.blocks[0]">{{item.blocks[0].data.text}}</span>
+          <span v-if="item.title">{{item.title}}</span>
         </template>
         <template v-slot:item.time="{ item }">
           <span>{{new Date(item.time).toLocaleString()}}</span>
@@ -108,7 +108,7 @@ export default {
       page: 1,
       pageCount: 0,
       search: '',
-      itemsPerPage: 13,
+      itemsPerPage: 25,
       dialog: false,
       headers: [
         {
@@ -135,16 +135,16 @@ export default {
 
       editedIndex: -1,
       editedItem: {
-        blocks: [],
+        title: '',
         userName: '',
-        articleType: 0,
+        type: 0,
         collect: 0,
         like: 0,
         reply: 0,
         time: ''
       },
       defaultItem: {
-        blocks: [],
+        title: '',
         userName: '',
         type: 0,
         collect: 0,
@@ -168,7 +168,7 @@ export default {
   methods: {
     showitem(e) {
       // console.log(e);
-      this.$store.commit('articleEdite')
+      // this.$store.commit('articleEdite')
       this.$router.push({
         path: `/${e.userName}/${e._id}`,
         query: { id: e._id }
@@ -176,7 +176,7 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.$store.state.article.indexOf(item)
+      this.editedIndex = this.$store.state.content.article.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
@@ -200,15 +200,6 @@ export default {
 
     save() {
       if (this.editedIndex > -1) {
-        // Object.assign(
-        //   this.$store.state.article[this.editedIndex],
-        //   this.editedItem
-        // )
-        // let Json = this.editedItem
-        // this.$axios.post('/blog/update', Json).then(res => {
-        //   console.log(res.data)
-        // })
-
         this.$store.commit('editArticle', {
           item: this.editedItem,
           index: this.editedIndex
@@ -217,52 +208,6 @@ export default {
         this.$store.state.article.push(this.editedItem)
       }
       this.close()
-    },
-    getColor(e) {
-      switch (e) {
-        case 'python':
-          return 'red'
-
-        case 'JavaScript':
-          return 'pink accent-2'
-
-        case 'PHP':
-          return 'teal'
-
-        case 'java':
-          return 'purple'
-
-        case '诗经':
-          return 'brown lighten-3'
-
-        case '散文':
-          return 'cyan lighten-3'
-
-        case '水彩':
-          return 'light-blue'
-
-        case '古诗词':
-          return 'orange'
-
-        case '小说':
-          return 'lime'
-        case '素描':
-          return 'light-green'
-        case '油画':
-          return 'amber'
-
-        case '插画':
-          return 'blue-grey'
-
-        case 'photoshop':
-          return 'cyan accent-2'
-
-        case 'painter':
-          return 'pink accent-1'
-
-        default:
-          return 'yellow'
-      }
     }
   }
 }

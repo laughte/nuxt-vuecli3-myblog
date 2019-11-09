@@ -1,6 +1,6 @@
 <template>
-  <v-card>
-    <v-card-title>莫慌!真正开发中>>>>>>>>>>>>>>></v-card-title>
+  <v-card flat color="transparent">
+    <v-card-title>个人设置</v-card-title>
   </v-card>
 </template>
 

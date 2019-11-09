@@ -12,7 +12,7 @@
       {{ src.likeCount }}
     </v-btn>
 
-    <v-btn icon @click="addunlike(src)">
+    <v-btn icon @click="addUnLikeImg(src)">
       <v-icon small>mdi-thumb-down</v-icon>
       {{ src.unlikeCount }}
     </v-btn>
@@ -24,69 +24,76 @@
 </template>
 
 <script>
+  import {mapMutations} from 'vuex'
 export default {
+
   props: { src: {} },
   data() {
     return {
-      isCollect: { true: 'gray', false: 'red' },
-      colFlag: true
+      isCollect: { true: 'red', false: 'gray' },
+      colFlag: false,
     }
   },
   methods: {
+    ...mapMutations(['spliceData','pushdata','imgCollect','addLikeImg','addUnLikeImg','imgDelete']),
     addEnshrine(e) {
       if (this.$store.state.user.userName) {
-        let userid = this.$store.state.user._id
+        let user= this.$store.state.user
         let id = e._id
-        e.user_id.length++
+        let n = this.$store.state.content.collectPic.indexOf(e)
+        if (n > -1){
+          this.spliceData({type:'collectPic',index:n})
+          e.user_id.length--
+          this.colFlag = false
+          this.$axios
+            .post('/api/arrDpicture', { _id: id, user_id: user.id })
+            .then(res => {
+              if(res.data.ok ===1){
+                console.log('ok')
+              }
+            })
+        }else {
+          this.colFlag = true
+          this.pushdata({type:'collectPic',data:e})
+          e.user_id.length++
         this.$axios
-          .post('/api/arrEpicture', { _id: id, user_id: userid })
+          .post('/api/arrEpicture', { _id: id, user_id: user.id })
           .then(res => {
-            console.log(res)
+            if(res.data.ok ===1){
+              console.log('ok')
+            }
           })
+        }
       } else {
         alert('你还没登录呢')
       }
     },
-    addLikeImg(e) {
-      let id = e._id
-      this.$store.commit('imgAddLike', id)
-    },
 
-    addunlike(e) {
-      let id = e._id
-      this.$store.commit('imgAddUnlike', id)
-    },
+
     changeEnshrine(n) {
       let w = this.src.user_id.findIndex(val => {
-        if (val === n._id) {
+        if (val === n.id) {
           return val
         }
       })
       if (w > -1) {
-        this.colFlag = false
+        this.colFlag = true
       }
     },
 
-    deleteImg(el) {
+    deleteImg(e) {
       if (this.$store.state.user.userName) {
         confirm('你确认要删除此项???') &&
-          this.$store.commit('imgDelete', el._id)
+          this.imgDelete(e._id)
       } else {
         alert('你还没登录呢')
       }
     }
   },
 
-  computed: {
-    stateuser: function() {
-      return this.$store.state.user
-    }
-  },
 
-  watch: {
-    stateuser: function(n) {
-      this.changeEnshrine(n)
-    }
+  mounted() {
+    this.changeEnshrine(this.$store.state.user)
   }
 }
 </script>

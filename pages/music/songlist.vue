@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card flat color="transparent">
     <!-- <v-img
           v-if="musicData."
             class="white--text"
@@ -9,7 +9,7 @@
             <v-card-title class="align-end fill-height">I'm a title</v-card-title>
     </v-img>-->
 
-    <v-simple-table fixed-header height="850px" v-if="$store.state.musicData.songs">
+    <v-simple-table fixed-header v-if="$store.state.music.searchSong.songs" >
       <template v-slot:default>
         <thead>
           <tr>
@@ -24,14 +24,14 @@
         <tbody>
           <tr
             @dblclick="getPlay(item)"
-            :style="{background:index%2?'#fff':'#FAFAFA'}"
-            v-for="(item,index) in $store.state.musicData.songs"
+
+            v-for="(item,index) in $store.state.music.searchSong.songs"
             :key="item.id"
           >
             <td>
               <v-icon
                 color="red"
-              >{{$store.state.musicUrl.id===item.id?'mdi-arrow-right-drop-circle':""}}</v-icon>
+              >{{$store.state.music.song.id===item.id?($store.state.music.playing?"mdi-pause-circle":"mdi-arrow-right-drop-circle"):""}}</v-icon>
             </td>
             <td>{{ item.name }}</td>
             <td>{{ item.artists[0].name }}</td>
@@ -49,11 +49,14 @@
 export default {
   methods: {
     getPlay(e) {
-      this.$store.commit('playlistPlay', e)
+      this.$store.dispatch('playlist',e)
     }
   }
 }
 </script>
 
 <style>
+  tbody.tr:hover {
+    background: #fff;
+  }
 </style>

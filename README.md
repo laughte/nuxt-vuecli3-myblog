@@ -1,6 +1,6 @@
-# myblog
+# mynewblog
 
-> My phenomenal Nuxt.js project
+> My funkadelic Nuxt.js project
 
 ## Build Setup
 

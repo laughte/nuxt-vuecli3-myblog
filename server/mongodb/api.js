@@ -30,7 +30,9 @@ router //bolgcontent
   .post('/update', async ctx => {
     let e = ctx.request.body
     let id = e._id
-    delete(e._id)
+    delete (e._id)
+    delete (e.countflag)
+
     // console.log(e)
     // delete(e.time)
     // console.log(id, e)
@@ -153,17 +155,17 @@ router.post('/signup', async (ctx) => {
   if (user.length === 0 && uemail.length === 0) {
     // 创建新用户
     let res = await DB.insert('users', ctx.request.body);
-    // console.log(res)
+    console.log(res)
     try {
       if (res.result.ok) {
         ctx.body = {
           status: 200,
           data: {
-            userName: res.username,
-            id: res._id,
-            email: res.email,
-            imgsrc: res.imgsrc,
-            msgFlag: res.msgFlag,
+            "userName": res.ops[0].username,
+            "id": res.ops[0]._id,
+            "email": res.ops[0].email,
+            "imgsrc": res.ops[0].imgsrc,
+            "msgFlag": res.ops[0].delflag,
           },
           msg: '注册成功'
         }
@@ -192,11 +194,11 @@ router.post('/signin', async (ctx, next) => {
     ctx.body = {
       status: 200,
       data: {
-        userName: res[0].username,
-        id: res[0]._id,
-        email: res[0].email,
-        imgsrc: res[0].imgsrc,
-        msgFlag: res.msgFlag
+        "userName": res[0].username,
+        "id": res[0]._id,
+        "email": res[0].email,
+        "imgsrc": res[0].imgsrc,
+        "delflag": res.delflag
       },
       msg: '登录成功'
     }
@@ -208,6 +210,11 @@ router.post('/signin', async (ctx, next) => {
     }
     console.log(error);
   }
+
+  // 图片上传
+  router.post('/upload', async ctx => {
+    console.log(ctx)
+  })
 
   // 本地登录
   // return Passport.authenticate('local', function (err, user, info, status) {
@@ -289,7 +296,7 @@ router
   .post('/epicture', async ctx => {
     let data = ctx.request.body;
     let id = data._id;
-    delete(data._id)
+    delete (data._id)
 
     let res = await DB.update('picture', {
       '_id': DB.setObjectId(id)
@@ -308,22 +315,33 @@ router
   .post('/arrEpicture', async ctx => {
     let data = ctx.request.body;
     let id = data._id;
-    delete(data._id)
+    delete (data._id)
 
     let res = await DB.updateArray('picture', {
       '_id': DB.setObjectId(id)
     }, data);
 
-    // console.log(res)
-    ctx.body = res
-    // try {
-    //   if (res.result.ok) {
-    //     ctx.body = res
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
+    ctx.body = {
+      status: 200,
+      msg: 'ok',
+      data:res
+    }
+  })
 
+  .post('/arrDpicture', async ctx => {
+    let data = ctx.request.body;
+    let id = data._id;
+    delete (data._id)
+
+    let res = await DB.deleteArray('picture', {
+      '_id': DB.setObjectId(id)
+    }, data);
+
+    ctx.body = {
+      status: 200,
+      msg: 'ok',
+      data:res
+    }
   })
 
   // picture删除api (是假的删除)

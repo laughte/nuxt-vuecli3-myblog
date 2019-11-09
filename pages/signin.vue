@@ -11,16 +11,17 @@
       status-icon
       ref="form"
       label-width="0px"
-      class="demo-ruleForm pa-5"
+      class="demo-ruleForm pa-5 textcolor--text"
       v-model="valid"
       :lazy-validation="lazy"
     >
       <h2>登录</h2>
       <!-- <el-form-item prop="username"> -->
-      <v-text-field v-model="user.username" :counter="10" label="Name" :rules="nameRules" required></v-text-field>
+      <v-text-field color="textcolor" v-model="user.username" :counter="10" label="Name" :rules="nameRules" required></v-text-field>
       <!-- </el-form-item> -->
       <!-- <el-form-item prop="pass"> -->
       <v-text-field
+        color="textcolor"
         type="password"
         label="Password"
         v-model="user.pass"
@@ -29,7 +30,7 @@
       ></v-text-field>
       <!-- </el-form-item> -->
 
-      <v-btn :disabled="!valid" color="success" class="mr-4" @click="validate">提交</v-btn>
+      <v-btn :disabled="!valid" color="textcolor" class="mr-4 listbgcolor--text" @click="validate">提交</v-btn>
       <v-btn color="error" class="mr-4" @click="reset">重置</v-btn>
       <router-link
         class="mr-4 v-btn v-btn--contained theme--light v-size--default"
@@ -41,7 +42,7 @@
         tag="button"
         to="/signup"
       >没有账号?</router-link>
-      <v-alert dense outlined v-show="alertflag" :type="isSuccess[issuc]">
+      <v-alert class="mt-2" dense outlined v-show="alertflag" :type="isSuccess[issuc]">
         {{
         subtitle
         }}
@@ -50,7 +51,6 @@
   </div>
 </template>
 <script>
-import CryptoJS from 'crypto-js'
 import { mapActions } from 'vuex'
 export default {
   name: 'signin',
@@ -58,7 +58,7 @@ export default {
     alertflag: false,
     issuc: false,
     isSuccess: {
-      true: 'success',
+      true: 'info',
       false: 'error'
     },
     valid: true,
@@ -88,19 +88,16 @@ export default {
             // console.log(res)
             this.alertflag = true
             this.subtitle = res.msg
+
             if (res.status === 200) {
               this.issuc = true
               this.userlogin(res.data)
               setTimeout(() => {
-                this.$router.push('/')
-                // this.$router.go(-1)
+                // this.$router.push('/')
+                this.$router.go(-1)
               }, 600)
             }
-            // let params = {
-            //   delflag: "false",
-            //   userId: this.$store.state.datacache.userId
-            // };
-            // this.$store.commit("readDataFromdb", params);
+
           })
           .catch(err => {
             console.log(err)
